@@ -38,7 +38,7 @@ describe UsersController do
 	end
 
 
-	 describe "GET 'new'" do
+	describe "GET 'new'" do
 	 it "should be successful" do
 #	  get 'new'
 	  get :new
@@ -48,8 +48,30 @@ describe UsersController do
 	 it "should have the right title" do
 	 get 'new'
 	 response.should have_selector("title", :content => "Sign up")
-
 	 end
+
+	 it "should have a name field" do
+		 get :new
+		 response.should have_selector("input[name='user[name]'][type='text']")	
+	 end
+	
+	 it "should have an email field" do
+		 get :new
+		 response.should have_selector("input[name='user[email]'][type='text']")
+	 end
+	 
+	 it "should have a password field" do
+		 get :new
+		 response.should have_selector("input[name='user[password]'][type='password']")
+	 end
+	 
+	 it "should have a password confirmation field" do
+		 get :new
+		 response.should have_selector("input[name='user[password_confirmation]'][type='password']")
+	 end
+
+	 
+
 	end
 
 	 describe "POST 'create'" do
@@ -74,10 +96,8 @@ describe UsersController do
 				 response.should render_template('new')
 			 end
 
-
-			 
-		 end
-
+	 
+	 end
 		 describe "success" do
 			 before(:each) do
 				 @attr={:name=>"Example User",:email=>"o@ex.com",:password=>"password",:password_confirmation =>"password"}
@@ -99,6 +119,28 @@ describe UsersController do
 				 flash[:success].should =~ /welcome to the sample app/i
 			 end
 
+			 it "should sign the user in" do
+				 post :create, :user => @attr
+				 controller.should be_signed_in
+			 end
+
 		 end
+
+		 describe "passwords must be empty" do
+
+			 before(:each) do
+				 @attr={:name=>"",:email=>"",:password=>"password",:password_confirmation =>"password"}
+			 end
+			it "password field must be empty after error" do
+		 	 post :create, :user=>@attr
+		 	 response.should have_selector("input[name='user[password]'][value='']")
+			end
+			it "password confirmation field must be empty after error" do
+		 	 post :create, :user=>@attr
+		 	 response.should have_selector("input[name='user[password_confirmation]'][value='']")
+			end
+		 end
+
 	 end
 end
+
